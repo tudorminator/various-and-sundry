@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+    <meta charset="utf-8">
+		<title>Nope.</title>
+		<style>
+			:root {
+				--rotationY: 0;
+				--rotationX: 0;
+			}
+			*,
+			*:before *:after {
+				box-sizing: border-box;
+			}
+			html,
+			body {
+				height: 100%;
+				padding: 0;
+				margin: 0;
+				overflow: hidden;
+			}
+			body {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				background-color: hsl(0, 0%, 10%);
+				color: hsl(0, 0%, 60%);
+				perspective: 100vw;
+			}
+			.message {
+				font: bold 30vw/1 serif;
+				position: relative;
+				transform: rotateX(var(--rotationX)) rotateY(var(--rotationY));
+			}
+			.message::after {
+				content: "Nope.";
+				color: hsla(0, 0%, 0%, 0.5);
+				font: inherit;
+				filter: blur(5px);
+				transform: rotateX(var(--rotationX)) rotateY(var(--rotationY)) translateZ(-15vw);
+				display: block;
+				position: absolute;
+				top: 0;
+				left: 0;
+				z-index: -1;
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<section class="message">Nope.</section>
+		</main>
+		<script>
+			const root = document.documentElement;
+			let documentWidth;
+			let documentHeight;
+			let halfWidth;
+			let halfHeight;
+
+			const initializeSizes = function() {
+				const clientRect = root.getBoundingClientRect();
+				({ width: documentWidth, height: documentHeight } = clientRect);
+				[halfWidth, halfHeight] = [documentWidth / 2, documentHeight / 2];
+			};
+      
+			initializeSizes();
+			const maxRotation = 25; // deg.
+
+			const mouseMoveHandler = (e) => {
+				const dx = e.clientX - halfWidth;
+				const dy = e.clientY - halfHeight;
+				const rotationY = (dx / halfWidth) * maxRotation;
+				const rotationX = (-dy / halfHeight) * maxRotation;
+				window.requestAnimationFrame(() =>{
+					root.style.setProperty("--rotationX", rotationX.toFixed(1) + "deg");
+					root.style.setProperty("--rotationY", rotationY.toFixed(1) + "deg");
+				});
+			};
+
+			root.addEventListener("resize", initializeSizes);
+			root.addEventListener("mousemove", mouseMoveHandler);
+		</script>
+	</body>
+</html>
