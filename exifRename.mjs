@@ -26,7 +26,7 @@ const startTime = Date.now();
 try {
     list = execSync(exifCommand).toString();
     if(list.length) {
-        JSON.parse(list);
+        list = JSON.parse(list);
     } else {
         console.error('No files found.');
         process.exit(1);    
