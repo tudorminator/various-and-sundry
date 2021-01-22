@@ -16,9 +16,11 @@ import { extname } from 'path';
 import { renameSync, existsSync } from 'fs';
 import readline from 'readline';
 
-const exifCommand = `exiftool -DateTimeOriginal -ee -j -q -d "%Y-%m-%d %H∶%M∶%S" .`;
+const exifProp = 'DateCreated';
+// const exifProp = 'DateTimeOriginal';
+const exifCommand = `exiftool -${exifProp} -ee -j -q -d "%Y-%m-%d %H∶%M∶%S" .`;
 const getFileInfoCommand = 'GetFileInfo -d';
-const supportedExtensions = '.jpg|.jpeg|.tif|.heic|.mov|.mp4'.split('|');
+const supportedExtensions = '.jpg|.jpeg|.tif|.heic|.png|.mov|.mp4'.split('|');
 let list;
 let frequencies = {};
 
@@ -72,24 +74,24 @@ list.forEach(item => {
         return;
     }
     // use GetFileInfo for files that were not supported by exif tool
-    if(typeof item.DateTimeOriginal === 'undefined'){
+    if(typeof item[exifProp] === 'undefined'){
         try {
             const fileDate = execSync(`${getFileInfoCommand} "${item.SourceFile}"`).toString();
             const [ date, time ] = fileDate.split(/\s/);
             const [ month, day, year ] = date.split(/[^\d]/);
             const [ hour, minute, second ] = time.split(/[^\d]/);
             const newDate = `${year}-${month}-${day} ${hour}∶${minute}∶${second}`;
-            item.DateTimeOriginal = newDate;
+            item[exifProp] = newDate;
         } catch (error) {
             skipped += 1;
             console.error(error, item);
         }
     }
-    let newFileName = `./${item.DateTimeOriginal}${extension}`;
+    let newFileName = `./${item[exifProp]}${extension}`;
     // increment frequency for file name if already seen
     frequencies[newFileName] = (frequencies[newFileName] || 0) + 1;
     if (frequencies[newFileName] > 1){
-        newFileName = `./${item.DateTimeOriginal} (${frequencies[newFileName]})${extension}`;
+        newFileName = `./${item[exifProp]} (${frequencies[newFileName]})${extension}`;
     } 
     item.NewFileName = newFileName;
 });
